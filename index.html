@@ -11,8 +11,14 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+html,
 body {
   margin: 0;
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
   min-height: 100vh;
   font-family: "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif;
   background: linear-gradient(180deg, #dff5d8, #fff3df);
@@ -21,13 +27,14 @@ body {
 
 #app {
   min-height: 100vh;
+  width: 100%;
   display: flex;
   justify-content: center;
 }
 
 .screen {
   width: 100%;
-  max-width: 100％;
+  max-width: 100%;
   min-height: 100vh;
   padding: 24px 18px 35px;
   text-align: center;
@@ -77,58 +84,21 @@ body {
 .chest-area {
   position: relative;
   margin: 20px auto;
-  width: 250px;
-  height: 230px;
+  width: min(90vw, 500px);
+  height: min(55vh, 500px);
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.chest {
-  font-size: 150px;
-  line-height: 1;
-  filter: drop-shadow(0 12px 8px rgba(80,50,20,0.2));
-  transition: transform 0.15s;
-}
-
-.chest.shake {
-  animation: shake 0.12s infinite;
-}
-
-@keyframes shake {
-  0%   { transform: rotate(-4deg) translateX(-3px); }
-  50%  { transform: rotate(4deg) translateX(3px); }
-  100% { transform: rotate(-4deg) translateX(-3px); }
-}
-
-.sparkle {
-  position: absolute;
-  font-size: 30px;
-  opacity: 0;
-}
-
-.sparkle.show {
-  animation: sparkle 1.2s ease-out forwards;
-}
-
-.sparkle:nth-child(2) { top: 20px; left: 30px; }
-.sparkle:nth-child(3) { top: 35px; right: 25px; }
-.sparkle:nth-child(4) { bottom: 20px; left: 45px; }
-.sparkle:nth-child(5) { bottom: 25px; right: 45px; }
-
-@keyframes sparkle {
-  0% {
-    opacity: 0;
-    transform: scale(0.2) rotate(0deg);
-  }
-  40% {
-    opacity: 1;
-    transform: scale(1.4) rotate(90deg);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(0.8) rotate(180deg);
-  }
+.chest-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+  filter: drop-shadow(0 12px 8px rgba(80,50,20,0.18));
 }
 
 .open-button {
@@ -168,6 +138,7 @@ body {
   justify-content: center;
   padding: 0;
 }
+
 .result.show {
   display: flex;
 }
@@ -191,27 +162,35 @@ body {
   margin: 0 auto;
   cursor: pointer;
 }
-.result-card h2 {
-  color: #d99a35;
-  margin-bottom: 12px;
-}
 
-.amount {
-  font-size: 64px;
-  font-weight: 900;
-  color: #e88a9f;
-  text-shadow: 0 4px 0 #ffd8df;
-  margin: 20px 0;
-}
+@media (orientation: landscape) {
+  .screen {
+    padding: 10px 20px 20px;
+  }
 
-.home-button {
-  border: none;
-  border-radius: 25px;
-  padding: 13px 30px;
-  background: #b9dcae;
-  color: white;
-  font-size: 17px;
-  font-weight: bold;
+  .title {
+    margin-top: 0;
+    font-size: 25px;
+  }
+
+  .speech {
+    margin: 8px auto;
+    padding: 8px 16px;
+  }
+
+  .info {
+    margin: 8px 0 10px;
+  }
+
+  .chest-area {
+    width: min(65vw, 650px);
+    height: 52vh;
+    margin: 10px auto;
+  }
+
+  .open-button {
+    padding: 12px 20px;
+  }
 }
 </style>
 </head>
@@ -241,14 +220,12 @@ body {
     </div>
 
     <div class="chest-area">
-
-      <div class="chest">🎁</div>
-
-      <div class="sparkle">✨</div>
-      <div class="sparkle">⭐</div>
-      <div class="sparkle">💫</div>
-      <div class="sparkle">✨</div>
-
+      <img
+        id="chestImage"
+        class="chest-image"
+        src="home.png"
+        alt="わくわく宝箱"
+      >
     </div>
 
     <button class="open-button" id="openButton">
@@ -261,72 +238,128 @@ body {
 
 <div class="result" id="result">
 
-<div class="result-card">
-  <img id="resultImage" src="result-10.png" alt="当選結果">
-</div>
+  <div class="result-card">
+    <img
+      id="resultImage"
+      src="result-10.png"
+      alt="当選結果"
+    >
+  </div>
 
 </div>
 
 <script>
 
 const openButton = document.getElementById("openButton");
-
-const chest = document.querySelector(".chest");
-const sparkles = document.querySelectorAll(".sparkle");
+const chestImage = document.getElementById("chestImage");
 const result = document.getElementById("result");
+const resultImage = document.getElementById("resultImage");
 
+const animationImages = [
+  "chest_01_shake.PNG",
+  "chest_02_key_flash.PNG",
+  "chest_03_light.PNG",
+  "chest_04_open.PNG",
+  "chest_05_confetti.PNG"
+];
 
 const prizes = [
-  { amount: 10, image: "result-10.png" },
-  { amount: 50, image: "result-50.png" },
-  { amount: 100, image: "result-100.png" },
-  { amount: 300, image: "result-300.png" },
-  { amount: 500, image: "result-500.png" }
+  {
+    amount: 10,
+    image: "result-10.png"
+  },
+  {
+    amount: 50,
+    image: "result-50.png"
+  },
+  {
+    amount: 100,
+    image: "result-100.png"
+  },
+  {
+    amount: 300,
+    image: "result-300.png"
+  },
+  {
+    amount: 500,
+    image: "result-500.png"
+  }
 ];
+
+let isOpening = false;
+
 openButton.addEventListener("click", () => {
 
+  if (isOpening) {
+    return;
+  }
+
+  isOpening = true;
   openButton.disabled = true;
 
-  // ① 宝箱がブルブル
-  chest.classList.add("shake");
+  /*
+   * ① 宝箱が揺れる
+   */
+  chestImage.src = animationImages[0];
 
-  // ② キラキラ
+  /*
+   * ② 鍵と光
+   */
   setTimeout(() => {
-    sparkles.forEach(sparkle => {
-      sparkle.classList.add("show");
-    });
-  }, 500);
+    chestImage.src = animationImages[1];
+  }, 700);
 
-  // ③〜⑤ 宝箱オープン演出
+  /*
+   * ③ 光が広がる
+   */
   setTimeout(() => {
-    chest.classList.remove("shake");
-    chest.textContent = "✨🎁✨";
-  }, 1500);
+    chestImage.src = animationImages[2];
+  }, 1400);
 
-  // 抽選
+  /*
+   * ④ 宝箱オープン
+   */
+  setTimeout(() => {
+    chestImage.src = animationImages[3];
+  }, 2100);
+
+  /*
+   * ⑤ 紙吹雪
+   */
+  setTimeout(() => {
+    chestImage.src = animationImages[4];
+  }, 2800);
+
+  /*
+   * ⑥ 当選結果
+   */
   setTimeout(() => {
 
     const prize =
       prizes[Math.floor(Math.random() * prizes.length)];
 
-document.getElementById("resultImage").src = prize.image;
+    resultImage.src = prize.image;
 
     result.classList.add("show");
 
-    openButton.disabled = false;
-
-  }, 2200);
+  }, 3500);
 
 });
 
-document.getElementById("resultImage").addEventListener("click", () => {
+/*
+ * 当選結果をタップするとホームに戻る
+ */
+resultImage.addEventListener("click", () => {
+
   result.classList.remove("show");
-  chest.textContent = "🎁";
-  sparkles.forEach(sparkle => {
-    sparkle.classList.remove("show");
-  });
+
+  chestImage.src = "home.png";
+
+  openButton.disabled = false;
+
+  isOpening = false;
+
 });
-  
 
 </script>
 

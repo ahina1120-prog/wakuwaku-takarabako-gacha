@@ -175,13 +175,23 @@ body {
 
 .result-card {
   width: 100%;
-  max-width: 380px;
-  padding: 30px 20px;
-  background: white;
-  border-radius: 30px;
-  box-shadow: 0 10px 30px rgba(80,60,30,0.2);
+  max-width: 420px;
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
 }
 
+#resultImage {
+  display: block;
+  width: 100%;
+  max-width: 420px;
+  max-height: 90vh;
+  height: auto;
+  object-fit: contain;
+  margin: 0 auto;
+  cursor: pointer;
+}
 .result-card h2 {
   color: #d99a35;
   margin-bottom: 12px;
@@ -252,38 +262,28 @@ body {
 
 <div class="result" id="result">
 
-  <div class="result-card">
-
-    <h2>🎉 おめでとう！ 🎉</h2>
-
-    <div class="amount" id="amount">
-      10円
-    </div>
-
-    <p>
-      ありがとうの気持ちを<br>
-      受け取ってね✨
-    </p>
-
-    <button class="home-button" id="homeButton">
-      🏠 ホームへ戻る
-    </button>
-
-  </div>
+<div class="result-card">
+  <img id="resultImage" src="result-10.png" alt="当選結果">
+</div>
 
 </div>
 
 <script>
 
 const openButton = document.getElementById("openButton");
-const homeButton = document.getElementById("homeButton");
+
 const chest = document.querySelector(".chest");
 const sparkles = document.querySelectorAll(".sparkle");
 const result = document.getElementById("result");
-const amount = document.getElementById("amount");
 
-const prizes = [10, 50, 100, 300, 500];
 
+const prizes = [
+  { amount: 10, image: "result-10.png" },
+  { amount: 50, image: "result-50.png" },
+  { amount: 100, image: "result-100.png" },
+  { amount: 300, image: "result-300.png" },
+  { amount: 500, image: "result-500.png" }
+];
 openButton.addEventListener("click", () => {
 
   openButton.disabled = true;
@@ -310,7 +310,7 @@ openButton.addEventListener("click", () => {
     const prize =
       prizes[Math.floor(Math.random() * prizes.length)];
 
-    amount.textContent = prize + "円";
+document.getElementById("resultImage").src = prize.image;
 
     result.classList.add("show");
 
@@ -320,7 +320,13 @@ openButton.addEventListener("click", () => {
 
 });
 
-homeButton.addEventListener("click", () => {
+document.getElementById("resultImage").addEventListener("click", () => {
+  result.classList.remove("show");
+  chest.textContent = "🎁";
+  sparkles.forEach(sparkle => {
+    sparkle.classList.remove("show");
+  });
+});
 
   result.classList.remove("show");
 

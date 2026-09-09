@@ -320,6 +320,12 @@ document.getElementById("resultImage").src = prize.image;
 });
 
 document.getElementById("resultImage").addEventListener("click", () => {
+  result.classList.remove("show");
+  chest.textContent = "🎁";
+  sparkles.forEach(sparkle => {
+    sparkle.classList.remove("show");
+  });
+});
   
 
 </script>
